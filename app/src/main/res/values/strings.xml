@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MiniArcade</string>
+    <string name="title_label">Mini Arcade</string>
+    <string name="welcome_label">Welcome to the arcade, choose a game</string>
+    <string name="tictactoe">Tic Tac Toe</string>
+    <string name="Hangman">Hangman</string>
+    <string name="Memory">Memory</string>
+    <string name="TBA">TBA...</string>
+</resources>
