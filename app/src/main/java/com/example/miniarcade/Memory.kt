@@ -10,6 +10,7 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.CountDownTimer
@@ -17,6 +18,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.core.content.res.ResourcesCompat
 import java.io.File
 
 class Memory(context: Context, private val screenWidth: Int, private val screenHeight: Int) : SurfaceView(context), SurfaceHolder.Callback {
@@ -81,6 +83,11 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
     private var bgPaint: Paint = Paint()
     private var titlePaint: Paint = Paint()
     private var restartPaint: Paint = Paint()
+
+    // set font
+    val customTypeface = ResourcesCompat.getFont(context, R.font.silkscreenregular)
+
+
     // Timer
     lateinit var timer: CountDownTimer
 
@@ -120,8 +127,7 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
         goBackRect = RectF(screenWidth / 20f, screenHeight / 30f, screenWidth / 5f, screenHeight / 11f)
         playAgainRect = RectF(screenWidth / 2.2f, screenHeight / 1.25f, screenWidth / 1.7f, screenHeight / 1.18f)
         pointsRect = RectF(screenWidth / 2.8f, screenHeight / 1.39f, screenWidth / 2.1f, screenHeight / 1.29f)
-        titlePaint.color = Color.argb(255, 255,145, 0)
-        titlePaint.textSize = 100f
+
 
         soundAttributes = AudioAttributes.Builder()                     // Constructor
             .setUsage(AudioAttributes.USAGE_GAME)                       // USAGE_GAME for game audio
@@ -138,6 +144,9 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
     }
 
     private fun initializePaint() {
+        titlePaint.color = Color.argb(255, 255,145, 0)
+        titlePaint.textSize = 70f
+        titlePaint.typeface = customTypeface
         bgPaint.color = Color.argb(255, 200, 200, 200)
         restartPaint.color = Color.argb(255, 200, 200, 200)
 
@@ -224,6 +233,9 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
                             } else {
                                 Log.d("NOT SAME BITMAAAAAAAAAAPS", "$guesses")
                                 points--
+                                if(points < 0) {
+                                    points = 0
+                                }
                             }
                             guesses = 0
                         }

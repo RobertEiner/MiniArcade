@@ -15,6 +15,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.core.content.res.ResourcesCompat
 import kotlin.random.Random
 
 
@@ -28,6 +29,9 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
     private var failSound: Int
 
     private var goBackBitmap: Bitmap
+
+    val customTypeface = ResourcesCompat.getFont(context, R.font.silkscreenregular)
+
 
     // Rect for choosing difficulty
     private val DIFFICULTY_RECT_LENGTH = screenWidth / 2f
@@ -141,7 +145,8 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
 
     private fun initializePaint() {
         titlePaint.color = Color.argb(255, 255, 255, 255)
-        titlePaint.textSize = 110f
+        titlePaint.textSize = 90f
+        titlePaint.typeface = customTypeface
         difficultyPaint.color = Color.argb(255, 114, 114, 179)
         innerDifficultyPaint.color = Color.argb(255, 255, 255, 255)
         innerDifficultyTextPaint.color = Color.argb(255, 100, 100, 150)

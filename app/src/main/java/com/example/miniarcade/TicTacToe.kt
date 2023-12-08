@@ -2,6 +2,8 @@ package com.example.miniarcade
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -11,7 +13,7 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.res.ResourcesCompat
 
 class TicTacToe(context: Context, private var screenWidth: Int, private var screenHeight: Int) : SurfaceView(context), SurfaceHolder.Callback {
     private  var surfaceHolder: SurfaceHolder
@@ -20,18 +22,22 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
     private lateinit var linePaint: Paint
     private lateinit var circlePaint: Paint
     private lateinit var textPaint: Paint
-    private lateinit var playAgainTextPaint: Paint
+    private lateinit var endOfGameMessagePaint: Paint
     private lateinit var playerOneRectPaint: Paint
     private lateinit var playerTwoRectPaint: Paint
     private lateinit var playAgainPaint: Paint
     private lateinit var titlePaint: Paint
 
+    private var goBackBitmap: Bitmap
+    private var playAgainBitmap: Bitmap
+
 
     private var gameRect: RectF
-    private var playAgainRect: RectF
+    private var goBackRect: RectF
+    //private var playAgainRect: RectF
     private var playerOneRect: RectF
     private var playerTwoRect: RectF
-    private var backRect: RectF
+    private var restartGameRect: RectF
 
 
     private val occupiedRects = arrayOf(
@@ -40,6 +46,9 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         charArrayOf(' ', ' ', ' '))
     private var gameBoardFull = false
     private val THREE_IN_A_ROW = 3
+
+    // set font
+    val customTypeface = ResourcesCompat.getFont(context, R.font.silkscreenregular)
 
 
     private val RECT_LEFT_SIDE: Float = screenWidth/10f
@@ -68,11 +77,16 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         surfaceHolder.addCallback(this)
         initializePaint()
 
-        backRect = RectF(LEFT_VERTICAL_LINE_X, screenHeight / 1.3f, RIGHT_VERTICAL_LINE_X, screenHeight / 1.2f)
+        restartGameRect = RectF(LEFT_VERTICAL_LINE_X + THIRD_OF_SQUARE_X - (THIRD_OF_SQUARE_X / 2), screenHeight / 1.3f, RIGHT_VERTICAL_LINE_X - THIRD_OF_SQUARE_X + (THIRD_OF_SQUARE_X / 2), screenHeight / 1.18f)
         gameRect = RectF(RECT_LEFT_SIDE, RECT_TOP, RECT_RIGHT_SIDE, RECT_BOTTOM)
-        playAgainRect = RectF(LEFT_VERTICAL_LINE_X, RECT_BOTTOM + HALF_OF_SQUARE_Y, RIGHT_VERTICAL_LINE_X, (RECT_BOTTOM + HALF_OF_SQUARE_Y) + HALF_OF_SQUARE_Y)
+        //playAgainRect = RectF(LEFT_VERTICAL_LINE_X, RECT_BOTTOM + HALF_OF_SQUARE_Y, RIGHT_VERTICAL_LINE_X, (RECT_BOTTOM + HALF_OF_SQUARE_Y) + HALF_OF_SQUARE_Y)
         playerOneRect = RectF(RECT_LEFT_SIDE, screenHeight - (screenHeight / 3f), LEFT_VERTICAL_LINE_X + THIRD_OF_SQUARE_X, screenHeight - (screenHeight / 3.8f))
         playerTwoRect = RectF(RIGHT_VERTICAL_LINE_X - THIRD_OF_SQUARE_Y, screenHeight - (screenHeight / 3f), RECT_RIGHT_SIDE, screenHeight - (screenHeight / 3.8f))
+        goBackRect = RectF(screenWidth / 20f, RECT_TOP / 3.5f, screenWidth / 5.5f, RECT_TOP / 1.5f )
+
+        playAgainBitmap = BitmapFactory.decodeResource(resources, R.drawable.refresh)
+        goBackBitmap = BitmapFactory.decodeResource(resources, R.drawable.leftttt)
+
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -94,6 +108,7 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         titlePaint.textSize = 70f
         titlePaint.strokeWidth = 20f
         titlePaint.color = Color.argb(255,92, 174, 245)
+        titlePaint.typeface = customTypeface
         // circles
         circlePaint = Paint()
         circlePaint.color = Color.argb(255, 92, 174, 245)
@@ -101,15 +116,16 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         circlePaint.strokeWidth = 12f
         // gameboard
         gameRectPaint = Paint()
-        gameRectPaint.color = Color.argb(255, 190, 223, 253)
+        gameRectPaint.color = Color.argb(255, 153, 247, 238)
         gameRectPaint.textSize = 50f
         //play again rect
         playAgainPaint = Paint()
         playAgainPaint.strokeWidth = 12f
         playAgainPaint.color = Color.argb(255, 190, 223, 253)
-        playAgainTextPaint = Paint()
-        playAgainTextPaint.color = Color.argb(255, 255, 255, 255)
-        playAgainTextPaint.textSize = 50f
+        endOfGameMessagePaint = Paint()
+        endOfGameMessagePaint.color = Color.argb(255, 92, 174, 245)
+        endOfGameMessagePaint.textSize = 50f
+        endOfGameMessagePaint.typeface = customTypeface
 
         // game board lines
         linePaint = Paint()
@@ -117,8 +133,9 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         linePaint.strokeWidth = 12f
         // text paint
         textPaint = Paint()
-        textPaint.color = Color.argb(255, 0, 0, 0)
+        textPaint.color = Color.argb(255, 255, 255, 255)
         textPaint.textSize = 50f
+        textPaint.typeface = customTypeface
         // paint for player rects
         playerOneRectPaint = Paint()
         playerOneRectPaint.color = Color.argb(255, 190, 223, 253)
@@ -126,16 +143,18 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
         playerTwoRectPaint = Paint()
         playerTwoRectPaint.color = Color.argb(255, 190, 223, 253)
 
-
-
     }
     private fun draw() {
         myCanvas = surfaceHolder.lockCanvas()
-        myCanvas.drawColor(Color.argb(255, 243, 243, 250))
-        myCanvas.drawText("Tic Tac Toe", LEFT_VERTICAL_LINE_X, RECT_TOP / 2, titlePaint)
-        myCanvas.drawRoundRect(backRect, 60f, 60f, playAgainPaint)
-        myCanvas.drawText("Back",  backRect.left + (backRect.width() / 3.3f) , backRect.top + (backRect.height() / 1.7f) , playAgainTextPaint )
+        myCanvas.drawColor(Color.argb(255, 203, 255, 251))
+        myCanvas.drawText("Tic Tac Toe", LEFT_VERTICAL_LINE_X / 1.5f, RECT_TOP / 1.8f, titlePaint)
+        //myCanvas.drawRoundRect(backRect, 60f, 60f, playAgainPaint)
+       // myCanvas.drawText("Back",  backRect.left + (backRect.width() / 3.3f) , backRect.top + (backRect.height() / 1.7f) , playAgainTextPaint )
         myCanvas.drawRoundRect(gameRect, 20f, 20f, gameRectPaint)
+        myCanvas.drawBitmap(playAgainBitmap, null, restartGameRect, endOfGameMessagePaint)
+        myCanvas.drawBitmap(goBackBitmap, null, goBackRect, endOfGameMessagePaint)
+
+
         // vertical left
         myCanvas.drawLine(LEFT_VERTICAL_LINE_X, RECT_TOP, LEFT_VERTICAL_LINE_X, RECT_BOTTOM, linePaint)
         // vertical right
@@ -159,30 +178,23 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
             playerOneRectPaint.color = Color.GREEN
             playerTwoRectPaint.color = Color.RED
             gameFinished = true
-            myCanvas.drawText("Player one won, congratulations!", RECT_LEFT_SIDE + HALF_OF_SQUARE_X, RECT_BOTTOM + 100f, textPaint )
-            myCanvas.drawRoundRect(playAgainRect, 60f, 60f, playAgainPaint)
-            myCanvas.drawText("Play again",  playAgainRect.left + (playAgainRect.width() / 8), playAgainRect.top + (playAgainRect.height() / 1.8f), playAgainTextPaint )
-
+            myCanvas.drawText("Player one won!", RECT_LEFT_SIDE  + HALF_OF_SQUARE_X, RECT_BOTTOM + 100f, endOfGameMessagePaint )
         }
         if(playerTwoWon) {
             playerTwoRectPaint.color = Color.GREEN
             playerOneRectPaint.color = Color.RED
             gameFinished = true
-            myCanvas.drawText("Player two won, congratulations!", RECT_LEFT_SIDE + HALF_OF_SQUARE_X, RECT_BOTTOM + 100f, textPaint )
-            myCanvas.drawRoundRect(playAgainRect, 60f, 60f, playAgainPaint)
-            myCanvas.drawText("Play again",  playAgainRect.left + (playAgainRect.width() / 8), playAgainRect.top + (playAgainRect.height() / 1.8f), playAgainTextPaint )
+            myCanvas.drawText("Player two won!", RECT_LEFT_SIDE  + HALF_OF_SQUARE_X , RECT_BOTTOM + 100f, endOfGameMessagePaint )
         }
 
         // player rects
         myCanvas.drawRoundRect(playerOneRect, 20f, 20f, playerOneRectPaint)
         myCanvas.drawRoundRect(playerTwoRect, 20f, 20f, playerTwoRectPaint)
-        myCanvas.drawText("Player 1", playerOneRect.left + THIRD_OF_SQUARE_X, screenHeight - (screenHeight / 3.8f) - (playerOneRect.height() / 2) , textPaint )
-        myCanvas.drawText("Player 2", playerTwoRect.left + THIRD_OF_SQUARE_X, screenHeight - (screenHeight / 3.8f) - (playerOneRect.height() / 2) , textPaint )
+        myCanvas.drawText("Player 1", playerOneRect.left + THIRD_OF_SQUARE_X / 2f, screenHeight - (screenHeight / 3.8f) - (playerOneRect.height() / 2) , textPaint )
+        myCanvas.drawText("Player 2", playerTwoRect.left + THIRD_OF_SQUARE_X / 2f, screenHeight - (screenHeight / 3.8f) - (playerOneRect.height() / 2) , textPaint )
 
         if(gameBoardFull && !playerOneWon && !playerTwoWon) {
-            myCanvas.drawText("It's a tie! Play again?", RECT_LEFT_SIDE + HALF_OF_SQUARE_X, RECT_BOTTOM + 100f, textPaint )
-            myCanvas.drawRoundRect(playAgainRect, 20f, 20f, playAgainPaint)
-            myCanvas.drawText("Play again",  playAgainRect.left + (playAgainRect.width() / 8), playAgainRect.top + (playAgainRect.height() / 1.8f), textPaint )
+            myCanvas.drawText("It's a tie! Play again?", RECT_LEFT_SIDE + THIRD_OF_SQUARE_X, RECT_BOTTOM + 100f, endOfGameMessagePaint )
 
         }
 
@@ -320,15 +332,16 @@ class TicTacToe(context: Context, private var screenWidth: Int, private var scre
                   draw()
 
               }
-                if(playAgainRect.contains(event.x, event.y) && gameFinished) {
+                if(restartGameRect.contains(event.x, event.y)) {
                     resetGame()
                     playerOneTurn = true
                     playerOneWon = false
                     playerTwoWon = false
                     gameFinished = false
+                    gameBoardFull = false
                     draw()
                 }
-                if(backRect.contains(event.x, event.y)) {
+                if(goBackRect.contains(event.x, event.y)) {
                     Intent(context, MainActivity::class.java).also {
                         context.startActivity(it)
                     }
