@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.ImageView
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +32,13 @@ class MainActivity : AppCompatActivity() {
         val imgViewMemory: ImageView = findViewById(R.id.imgViewMemory)
         imgViewMemory.setOnClickListener {
             Intent(this, MemoryActivity::class.java).also {
+                startActivity(it)
+            }
+        }
+
+        val btnHowToPlay: Button = findViewById(R.id.btnHowToPlay)
+        btnHowToPlay.setOnClickListener {
+            Intent(this, HowToPlayActivity::class.java).also {
                 startActivity(it)
             }
         }

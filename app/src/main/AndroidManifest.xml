@@ -24,6 +24,7 @@
         <activity android:name=".TicTacToeActivity"></activity>
         <activity android:name=".HangmanActivity"></activity>
         <activity android:name=".MemoryActivity"></activity>
+        <activity android:name=".HowToPlayActivity"></activity>
     </application>
 
 </manifest>

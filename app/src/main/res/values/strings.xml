@@ -6,4 +6,32 @@
     <string name="Hangman">Hangman</string>
     <string name="Memory">Memory</string>
     <string name="TBA">TBA...</string>
+    <string name="tictactoeHowToPlay">
+        This is a multiplayer game, with a maximum of two players. The goal is to get three in a row before your opponent
+        does. If it is a tie, press the restart button on the bottom.
+
+        Player one has the X symbol, and player two has the O symbol.
+    </string>
+    <string name="hangmanHowToPlay">
+        Hangman is a classic, played on whiteboards everywhere. As a player your objective is to guess the right word
+        that has been randomly selected. You guess the word one letter at a time, if the guess was correct, the letter will be
+        displayed at a position on the screen corresponding to its position in the word. If you make an incorrect guess,
+        a piece of the hangman structure will be drawn out. If all the hangman pieces have been drawn out before you
+        figure out what the word is, you lose.
+    </string>
+    <string name="hangmanDifficulties">
+        There are three difficulties, each difficulty has a different number of allowed incorrect guesses.\n
+        Easy: 12 guesses\n
+        Medium: 10 guesses\n
+        Hard: 8 guesses
+    </string>
+
+    <string name="memoryHowToPlay">
+        Memory will put your cognitive abilities to the test. This version comes with a dinosaur theme. As a player, your task
+        is to turn over the cards one by one and find the matching cards. There are in total 16 cards made up of 8 duplicate cards.\n\n
+
+        For a correct guess, you get 4 points, and for an incorrect guess you get -1 point. The minimum points you are
+        able to get is 0, and maximum is 32.
+    </string>
+
 </resources>
