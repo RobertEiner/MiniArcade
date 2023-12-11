@@ -29,9 +29,9 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
     private var currentCoverBitmap2: Bitmap
     private lateinit var currentGuessedBitmap1: Bitmap
     private lateinit var currentGuessedBitmap2: Bitmap
-    private lateinit var pointsBitmap: Bitmap
-    private lateinit var playAgainBitmap: Bitmap
-    private lateinit var goBackBitmap: Bitmap
+    private var pointsBitmap: Bitmap
+    private var playAgainBitmap: Bitmap
+    private var goBackBitmap: Bitmap
 
     private val soundAttributes: AudioAttributes
     private val soundPool: SoundPool
@@ -86,10 +86,6 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
 
     // set font
     val customTypeface = ResourcesCompat.getFont(context, R.font.silkscreenregular)
-
-
-    // Timer
-    lateinit var timer: CountDownTimer
 
     init {
         surfaceHolder.addCallback(this)
@@ -224,14 +220,12 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
                             currentGuessedBitmap2 = bitmap!!
                             if(currentGuessedBitmap1.sameAs(currentGuessedBitmap2)) {
                                 points += 4
-                                Log.d("SAME BITMAAAAAAAAAAPS", "$guesses")
                                 removeCoverImage(coverBitmapKey, coverBitmapKey2)
                                 correctGuesses++
                                 if(correctGuesses == 8) {
                                     soundPool.play(successSound, 1f, 1f, 1, 0, 1f)
                                 }
                             } else {
-                                Log.d("NOT SAME BITMAAAAAAAAAAPS", "$guesses")
                                 points--
                                 if(points < 0) {
                                     points = 0
@@ -279,7 +273,5 @@ class Memory(context: Context, private val screenWidth: Int, private val screenH
             }
         }
     }
-
-
 
 }

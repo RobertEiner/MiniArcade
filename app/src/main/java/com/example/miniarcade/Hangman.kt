@@ -15,6 +15,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import kotlin.random.Random
 
@@ -29,7 +30,9 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
     private var failSound: Int
 
     private var goBackBitmap: Bitmap
+    private var playAgainBitmap: Bitmap
 
+    // custom game font
     val customTypeface = ResourcesCompat.getFont(context, R.font.silkscreenregular)
 
 
@@ -81,7 +84,7 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
     private val linePaint: Paint = Paint()
     private val wrongGuessPaint: Paint = Paint()
     private val rightGuessPaint: Paint = Paint()
-    private val gameOverPaintTexPaint: Paint = Paint()
+    private val gameOverTextPaint: Paint = Paint()
     private val gameOverRectPaint: Paint = Paint()
     private val playAgainRectPaint: Paint = Paint()
     private val playAgainTextPaint: Paint = Paint()
@@ -121,13 +124,14 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
         mediumRect = RectF(EASY_RECT_LEFT, MEDIUM_RECT_TOP, EASY_RECT_RIGHT, MEDIUM_RECT_BOTTOM)
         hardRect = RectF(EASY_RECT_LEFT, HARD_RECT_TOP, EASY_RECT_RIGHT, HARD_RECT_BOTTOM)
         gameFinishedRect = RectF(DIFFICULTY_RECT_LEFT, screenHeight / 1.25f,  DIFFICULTY_RECT_LEFT + DIFFICULTY_RECT_LENGTH,screenHeight / 1.05f)
-        playAgainRect = RectF(DIFFICULTY_RECT_LEFT + (gameFinishedRect.width() / 4), gameFinishedRect.top + (gameFinishedRect.height() / 2.5f),  DIFFICULTY_RECT_LEFT + DIFFICULTY_RECT_LENGTH - (gameFinishedRect.width() / 4),screenHeight / 1.1f)
+        playAgainRect = RectF(DIFFICULTY_RECT_LEFT + (gameFinishedRect.width() / 3f), gameFinishedRect.top + (gameFinishedRect.height() / 2.5f),  DIFFICULTY_RECT_LEFT + DIFFICULTY_RECT_LENGTH - (gameFinishedRect.width() / 3f),screenHeight / 1.08f)
         backRect = RectF(screenWidth / 20f, screenHeight / 30f, screenWidth / 5f, screenHeight / 11f)
 
         isFocusable = true
         requestFocus()
         // bitmap
-        goBackBitmap = BitmapFactory.decodeResource(resources, R.drawable.leftarrowhangman)
+        playAgainBitmap = BitmapFactory.decodeResource(resources, R.drawable.hangmanrestart)
+        goBackBitmap = BitmapFactory.decodeResource(resources, R.drawable.hangmanleftarrow)
         soundAttributes = AudioAttributes.Builder()                     // Constructor
             .setUsage(AudioAttributes.USAGE_GAME)                       // USAGE_GAME for game audio
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)  // set content type of audio
@@ -147,24 +151,29 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
         titlePaint.color = Color.argb(255, 255, 255, 255)
         titlePaint.textSize = 90f
         titlePaint.typeface = customTypeface
-        difficultyPaint.color = Color.argb(255, 114, 114, 179)
+        difficultyPaint.color = ContextCompat.getColor(context, R.color.difficultyPurple)
         innerDifficultyPaint.color = Color.argb(255, 255, 255, 255)
         innerDifficultyTextPaint.color = Color.argb(255, 100, 100, 150)
         innerDifficultyTextPaint.textSize = 50f
+        innerDifficultyTextPaint.typeface = customTypeface
         linePaint.strokeWidth = 10f
         linePaint.color = Color.argb(255, 255, 255, 255)
         linePaint.textSize = 100f
         linePaint.style = Paint.Style.STROKE
         wrongGuessPaint.textSize = 50f
         wrongGuessPaint.color = Color.argb(255, 255, 255, 255)
+        wrongGuessPaint.typeface = customTypeface
         rightGuessPaint.textSize = 100f
         rightGuessPaint.color = Color.argb(255, 255, 255, 255)
-        gameOverPaintTexPaint.color = Color.argb(255, 100, 100 ,150)
-        gameOverPaintTexPaint.textSize = 70f
+        rightGuessPaint.typeface = customTypeface
+        gameOverTextPaint.color = ContextCompat.getColor(context, R.color.purple)
+        gameOverTextPaint.textSize = 70f
+        gameOverTextPaint.typeface = customTypeface
         gameOverRectPaint.color = Color.argb(255, 255, 255 ,255)
-        playAgainRectPaint.color = Color.argb(255, 100, 100 ,150)
+        playAgainRectPaint.color = Color.argb(255, 255, 255 ,255)
         playAgainTextPaint.color = Color.argb(255, 255, 255 ,255)
         playAgainTextPaint.textSize = 50f
+        playAgainTextPaint.typeface = customTypeface
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -179,8 +188,9 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
 
     private fun draw() {
         myCanvas = surfaceHolder.lockCanvas()
-        myCanvas.drawColor(Color.argb(255, 100, 100 ,150))
+        myCanvas.drawColor(ContextCompat.getColor(context, R.color.purple))
         myCanvas.drawText("Hangman", screenWidth / 3.5f, screenHeight / 10f, titlePaint)
+        myCanvas.drawBitmap(goBackBitmap, null, backRect, playAgainTextPaint)
 
 
         if(!difficultyIsChosen) {
@@ -188,13 +198,10 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
             myCanvas.drawRoundRect(easyRect, 20f, 20f, innerDifficultyPaint)
             myCanvas.drawRoundRect(mediumRect, 20f, 20f, innerDifficultyPaint)
             myCanvas.drawRoundRect(hardRect, 20f, 20f, innerDifficultyPaint)
-            myCanvas.drawBitmap(goBackBitmap, null, backRect, playAgainTextPaint)
-            myCanvas.drawText("Easy", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 3.2f, EASY_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
-            myCanvas.drawText("Medium", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 5.2f, MEDIUM_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
-            myCanvas.drawText("Hard", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 3.2f, HARD_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
+            myCanvas.drawText("Easy", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 4f, EASY_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
+            myCanvas.drawText("Medium", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 7.8f, MEDIUM_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
+            myCanvas.drawText("Hard", EASY_RECT_LEFT + INNER_DIFFICULTY_LENGTH / 4f, HARD_RECT_TOP +  (INNER_DIFFICULTY_HEIGHT / 1.7f), innerDifficultyTextPaint)
         } else {
-            myCanvas.drawBitmap(goBackBitmap, null, backRect, playAgainTextPaint)
-
             // draw lines for letters
             var offset = 0f
             for(i in 0 until 5) {
@@ -232,15 +239,18 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
                 soundPool.play(failSound, 1f, 1f, 1, 0, 1f)
                 myCanvas.drawRoundRect(gameFinishedRect, 20f, 20f, gameOverRectPaint)
                 myCanvas.drawRoundRect(playAgainRect, 20f, 20f, playAgainRectPaint)
-                myCanvas.drawText("Game Over!", gameFinishedRect.left + (gameFinishedRect.width() / 5.4f), gameFinishedRect.top + (gameFinishedRect.height() / 3.5f), gameOverPaintTexPaint)
-                myCanvas.drawText("Play again", playAgainRect.left + (playAgainRect.width() / 10f), playAgainRect.top + (playAgainRect.height() / 1.5f), playAgainTextPaint)
+                myCanvas.drawBitmap(playAgainBitmap, null, playAgainRect, playAgainRectPaint)
+                myCanvas.drawText("Game Over!", gameFinishedRect.left + (gameFinishedRect.width() / 13f), gameFinishedRect.top + (gameFinishedRect.height() / 3.5f), gameOverTextPaint)
+               // myCanvas.drawText("Play again", playAgainRect.left + (playAgainRect.width() / 10f), playAgainRect.top + (playAgainRect.height() / 1.5f), playAgainTextPaint)
             }
             if(gameWon) {
                 soundPool.play(successSound, 1f, 1f, 1, 0, 1f)
                 myCanvas.drawRoundRect(gameFinishedRect, 20f, 20f, gameOverRectPaint)
                 myCanvas.drawRoundRect(playAgainRect, 20f, 20f, playAgainRectPaint)
-                myCanvas.drawText("Great Job!", gameFinishedRect.left + (gameFinishedRect.width() / 5.4f), gameFinishedRect.top + (gameFinishedRect.height() / 3.5f), gameOverPaintTexPaint)
-                myCanvas.drawText("Play again", playAgainRect.left + (playAgainRect.width() / 10f), playAgainRect.top + (playAgainRect.height() / 1.5f), playAgainTextPaint)
+                myCanvas.drawBitmap(playAgainBitmap, null, playAgainRect, playAgainRectPaint)
+
+                myCanvas.drawText("Great Job!", gameFinishedRect.left + (gameFinishedRect.width() / 13f), gameFinishedRect.top + (gameFinishedRect.height() / 3.5f), gameOverTextPaint)
+                //myCanvas.drawText("Play again", playAgainRect.left + (playAgainRect.width() / 10f), playAgainRect.top + (playAgainRect.height() / 1.5f), playAgainTextPaint)
 
             }
         }
@@ -272,7 +282,6 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val pressedChar = event?.displayLabel?.toString() ?: ""
-        Log.d(pressedChar, "AAAAAAAAAAAAA")
         checkIfGuessWasCorrect(pressedChar)
         draw()
         return super.onKeyDown(keyCode, event)
@@ -284,7 +293,6 @@ class Hangman(context: Context, private val screenWidth: Int, private val screen
                 wordToGuess[it] == pressedChar.lowercase().singleOrNull()
             }
             for(i in indices.indices) {
-                Log.d("indices for " + indices[i], "vvvvvvvv")
                 currentProgress[indices[i]] = pressedChar.singleOrNull()!!
             }
             // check if word is guessed correctly
